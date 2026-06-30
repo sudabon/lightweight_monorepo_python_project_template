@@ -58,7 +58,7 @@ frontend/
 ```bash
 cd backend
 uv sync
-uv run uvicorn src.main:app --reload
+uv run uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
 uv run pytest
 uv run ruff check .
 uv run ruff format --check .
@@ -82,6 +82,6 @@ docker compose up -d
 
 ## Notes
 
-- `.env` はコミットしない。必要なキーは `.env.example` を参照する。
+- `.env` はコミットしない。必要なキーは `backend/.env.example` を参照し、`backend/.env` にコピーして使う。
 - `GET /health` は DB 非依存にし、DB 未起動でも起動確認できるようにする。
 - API スキーマをバックエンドとフロントエンド間の型の信頼源にする。

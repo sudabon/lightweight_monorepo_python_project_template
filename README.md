@@ -9,6 +9,7 @@ Clean Architecture の厳密な4層ではなく、`api` / `services` / `reposito
 ```text
 backend/
   pyproject.toml
+  .env.example
   migrations/
   src/
     main.py
@@ -24,6 +25,7 @@ backend/
       health.py
   tests/
     test_health_service.py
+    test_health_api.py
 frontend/
   package.json
   vite.config.ts
@@ -36,7 +38,6 @@ frontend/
     types/
       health.ts
 docker-compose.yml
-.env.example
 ```
 
 ## Backend
@@ -44,7 +45,7 @@ docker-compose.yml
 ```bash
 cd backend
 uv sync
-uv run uvicorn src.main:app --reload
+uv run uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 Health check:
@@ -66,6 +67,7 @@ cd backend
 uv run pytest
 uv run ruff check .
 uv run ruff format --check .
+uv run mypy src/
 ```
 
 ## Frontend
@@ -91,13 +93,17 @@ The health endpoint does not require DB access, so backend startup and tests wor
 
 ## Environment Variables
 
-Copy `.env.example` to `.env` when local overrides are needed.
+ローカル起動時は `cd backend` して実行するため、backend 用の `.env` は `backend/.env` に置く。
+`backend/.env.example` を `backend/.env` にコピーして利用する。
 
 | Key | Default example | Purpose |
 | --- | --- | --- |
 | `APP_ENV` | `development` | Runtime environment name |
-| `APP_PORT` | `8000` | Backend port |
+| `APP_PORT` | `8000` | Backend port (see note below) |
 | `DATABASE_URL` | `postgresql+asyncpg://postgres:postgres@localhost:5432/app` | PostgreSQL connection URL |
+
+`APP_PORT` はアプリケーション設定として保持する。
+ローカル起動時の uvicorn ポートは、起動コマンドの `--port` で指定する。
 
 ## Development Rules
 
