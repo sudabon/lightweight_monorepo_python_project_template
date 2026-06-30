@@ -11,3 +11,38 @@
 .cursorrules
 .cursorignore
 .cursorindexingignore
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# uv
+.uv-cache/
+uv.lock.tmp
+
+# Node
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+.pnpm-store/
+
+# Logs
+*.log
+logs/

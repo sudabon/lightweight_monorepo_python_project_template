@@ -1,41 +1,110 @@
-# monorepo_project_template
+# lightweight_monorepo_python_project_template
 
-クリーンアーキテクチャに沿ったモノレポ Web アプリを実装するための**ベース／テンプレート**用リポジトリです。依存の向きとソース配置をテストで固定し、エージェント向けの規約をリポジトリ内にまとめています。
+FastAPI と React を最小構成で始めるための軽量モノレポテンプレートです。
+Clean Architecture の厳密な4層ではなく、`api` / `services` / `repositories` の
+3責務に絞った軽量構成です。
 
-## 現状のリポジトリに含まれるもの
+## Structure
 
-| 内容 | 説明 |
-|------|------|
-| **アーキテクチャテスト** | `backend/tests/arch/` に unittest ベースの検証があります。Python パッケージ名は **`todo_app`** を想定しています（フォーク時にリネームしてください）。 |
-| **依存ルール** | `test_dependency_rule.py` … `domain` 層が `application` / `interfaces` / `infrastructure` へ内向き import しないことを AST で検査します。 |
-| **ディレクトリ構造** | `test_source_structure.py` … `todo_app` 直下に **`domain` → `app` → `interface` → `infra`** の4層フォルダのみがあることを検証します（内側から外側の順）。 |
-| **エージェント規約** | `.cursor/rules/`、`.claude/rules/`、`.codex/rules/` にアーキテクチャ・バックエンド／フロント規約・テスト・Git などを配置しています。 |
-
-依存の方向の原則（`.cursor/rules/architecture.md` と同趣旨）は次のとおりです。
-
+```text
+backend/
+  pyproject.toml
+  migrations/
+  src/
+    main.py
+    config.py
+    db.py
+    api/
+      health.py
+    services/
+      health_service.py
+    repositories/
+      README.md
+    schemas/
+      health.py
+  tests/
+    test_health_service.py
+frontend/
+  package.json
+  vite.config.ts
+  index.html
+  src/
+    App.tsx
+    main.tsx
+    lib/
+      api.ts
+    types/
+      health.ts
+docker-compose.yml
+.env.example
 ```
-interface → app → domain
-infra     → app → domain
+
+## Backend
+
+```bash
+cd backend
+uv sync
+uv run uvicorn src.main:app --reload
 ```
 
-- **domain** は他レイヤーに依存しない（標準ライブラリ中心）。
-- **app** は **domain** のみ参照する。
-- **infra** は **app** の抽象（リポジトリ等）を実装する。
-- **interface** は **app** のユースケースを呼び出す。
+Health check:
 
-## まだ含まれていないもの（目標構成）
+```bash
+curl http://127.0.0.1:8000/health
+```
 
-アプリケーション本体（FastAPI の `src/`、フロントエンド、`pyproject.toml` / `package.json` など）は**未配置**です。導入後に目指すスタック・ディレクトリ・コマンドの全体像は **`AGENTS.md`** に記載しています（Python 3.13 / FastAPI / uv、React / Vite / pnpm など）。
+Expected response:
 
-テストを通すには、`AGENTS.md` の `backend/src/` 配下のような構成に合わせて **`todo_app` パッケージ**（またはテスト内パスと整合する名前）を配置し、上記4層フォルダを作成したうえで、依存ルールに従って実装してください。
+```json
+{"status":"ok"}
+```
 
-なお、`test_dependency_rule.py` が検査する import パス上のレイヤー名（例: `application`, `interfaces`, `infrastructure`）と、`test_source_structure.py` が期待するフォルダ名（`app`, `interface`, `infra`）は一致していません。スキャフォールド時は **`AGENTS.md` とテストの両方**を読み、必要ならテスト側をプロジェクトのパッケージ名・モジュール名に合わせて更新してください。
+Tests and checks:
 
-## ドキュメントの読み方
+```bash
+cd backend
+uv run pytest
+uv run ruff check .
+uv run ruff format --check .
+```
 
-- **人間・ツール共通のプロジェクト概要・コマンド例** → [`AGENTS.md`](./AGENTS.md)
-- **依存方向・禁止事項の短い要約** → [`.cursor/rules/architecture.md`](./.cursor/rules/architecture.md)
+## Frontend
 
----
+```bash
+cd frontend
+pnpm install
+pnpm dev
+pnpm build
+```
 
-この README はリポジトリの実ファイル構成に基づいています。ソースやパッケージ名を追加したら、`todo_app` 参照とテストの期待値を自分のプロジェクト名に合わせて更新してください。
+Set `VITE_API_BASE_URL` if the backend is not running at `http://localhost:8000`.
+
+## Local DB
+
+PostgreSQL is available through Docker Compose:
+
+```bash
+docker compose up -d
+```
+
+The health endpoint does not require DB access, so backend startup and tests work without Docker.
+
+## Environment Variables
+
+Copy `.env.example` to `.env` when local overrides are needed.
+
+| Key | Default example | Purpose |
+| --- | --- | --- |
+| `APP_ENV` | `development` | Runtime environment name |
+| `APP_PORT` | `8000` | Backend port |
+| `DATABASE_URL` | `postgresql+asyncpg://postgres:postgres@localhost:5432/app` | PostgreSQL connection URL |
+
+## Development Rules
+
+- HTTP concerns belong in `backend/src/api`.
+- Business logic belongs in `backend/src/services`.
+- DB access belongs in `backend/src/repositories`.
+- DB setup belongs in `backend/src/db.py`.
+- Settings belong in `backend/src/config.py`.
+- Frontend API calls belong in `frontend/src/lib/api.ts`.
+- Frontend response types belong in `frontend/src/types/`.

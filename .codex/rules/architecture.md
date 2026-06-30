@@ -1,21 +1,20 @@
-# アーキテクチャ原則
+# 軽量アーキテクチャ原則
 
-## 依存の方向（厳守）
+## 3責務
 
-```
-interface → app → domain
-infra     → app → domain
-```
+- `backend/src/api`: HTTP 入出力、ルーティング、ステータスコードを扱う。
+- `backend/src/services`: 業務判断と処理手順を扱う。
+- `backend/src/repositories`: DB 読み書きを扱う。実テーブルが出るまで空でよい。
 
-- **domain** は他のどの層にも依存しない。標準ライブラリのみ使用可。
-- **app** は domain のみに依存する。infra や interfaces を import しない。
-- **infra** は app のリポジトリインターフェースを実装する。
-- **interfaces** は app の usecase を呼び出す。domain を直接操作しない。
+## 共有ファイル
+
+- `backend/src/config.py`: 環境変数と設定値を集約する。
+- `backend/src/db.py`: SQLAlchemy async エンジンとセッション factory を集約する。
+- `backend/src/schemas`: Pydantic のリクエスト・レスポンス型を置く。
 
 ## 禁止事項
 
-- domain 層で SQLAlchemy, FastAPI, その他外部ライブラリを import しない
-- usecase 内で具象リポジトリや具象portを直接インスタンス化しない（DIで注入する）
-- controller から entity を直接返さない（必ず viewmodel に変換する）
-- infra の具象クラスを interface から直接 import しない
-- app 層の port インターフェースに infra の実装詳細を漏らさない
+- `api` から SQLAlchemy セッションを直接扱わない。
+- `api` に業務ロジックを書かない。
+- 環境変数を各モジュールで直接読まない。
+- 実データが無い段階で過剰な抽象を作らない。

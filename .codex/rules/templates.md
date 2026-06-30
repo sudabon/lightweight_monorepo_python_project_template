@@ -1,72 +1,43 @@
 # ファイル作成時のテンプレート
 
-## 新規 entity
+## 新規 service
 
 ```python
-from dataclasses import dataclass
+from src.schemas.xxx import XxxResponse
 
 
-@dataclass(frozen=True)
-class XxxId:
-    value: str
-
-
-@dataclass
-class Xxx:
-    id: XxxId
-    name: str
-```
-
-## 新規 usecase
-
-```python
-from abc import ABC, abstractmethod
-
-
-class XxxUseCase:
-    def __init__(self, xxx_repository: XxxRepository) -> None:
-        self._xxx_repository = xxx_repository
-
-    async def execute(self, input_dto: XxxInputDto) -> XxxOutputDto:
-        ...
-```
-
-## 新規 repository インターフェース
-
-```python
-from abc import ABC, abstractmethod
-
-
-class XxxRepository(ABC):
-    @abstractmethod
-    async def find_by_id(self, id: XxxId) -> Xxx | None: ...
-
-    @abstractmethod
-    async def save(self, entity: Xxx) -> None: ...
+class XxxService:
+    async def run(self) -> XxxResponse:
+        return XxxResponse(...)
 ```
 
 ## 新規 router
 
 ```python
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
+
+from src.schemas.xxx import XxxResponse
+from src.services.xxx_service import XxxService
 
 router = APIRouter(prefix="/xxx", tags=["xxx"])
+_xxx_service = XxxService()
 
 
-@router.get("/")
-async def get_xxx_list(
-    controller: XxxController = Depends(get_xxx_controller),
-) -> list[XxxViewModel]:
-    return await controller.get_list()
+@router.get("")
+async def get_xxx() -> XxxResponse:
+    return await _xxx_service.run()
 ```
 
-## 新規 port インターフェース
+## 新規 repository
 
 ```python
-from abc import ABC, abstractmethod
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
-class XxxPort(ABC):
-    @abstractmethod
-    async def send(self, message: XxxMessage) -> None: ...
+class XxxRepository:
+    def __init__(self, session: AsyncSession) -> None:
+        self._session = session
+
+    async def list_items(self) -> list[object]:
+        return []
 ```
