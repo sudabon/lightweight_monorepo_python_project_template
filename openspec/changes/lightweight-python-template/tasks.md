@@ -45,7 +45,7 @@
 - [x] 6.1 リポジトリ全文を `domain|application|interfaces|infrastructure|todo_app` で grep し、ガイド由来の説明箇所を除き 0 件であることを確認
 - [x] 6.2 `backend/tests/arch/` が存在しないことを確認
 - [x] 6.3 ガイド12章 Python版の完了条件（README/AGENTS 整備、health 動作、pytest 成功、arch テスト削除、`todo_app` 不在、名称揺れ解消）をすべて点検
-- [ ] 6.4 変更をコミット（コミットメッセージは日本語・`feat:`/`refactor:` 等のプレフィックス、1関心事単位で分割）
+- [x] 6.4 変更をコミット（コミットメッセージは日本語・`feat:`/`refactor:` 等のプレフィックス、1関心事単位で分割）
 
 ## 7. GitHub テンプレートとして公開（要ユーザー承認）
 
