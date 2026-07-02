@@ -14,18 +14,25 @@ class XxxService:
 ## 新規 router
 
 ```python
-from fastapi import APIRouter
+from typing import Annotated
+
+from fastapi import APIRouter, Depends
 
 from src.schemas.xxx import XxxResponse
 from src.services.xxx_service import XxxService
 
 router = APIRouter(prefix="/xxx", tags=["xxx"])
-_xxx_service = XxxService()
+
+
+def get_xxx_service() -> XxxService:
+    return XxxService()
 
 
 @router.get("")
-async def get_xxx() -> XxxResponse:
-    return await _xxx_service.run()
+async def get_xxx(
+    xxx_service: Annotated[XxxService, Depends(get_xxx_service)],
+) -> XxxResponse:
+    return await xxx_service.run()
 ```
 
 ## 新規 repository
@@ -33,11 +40,13 @@ async def get_xxx() -> XxxResponse:
 ```python
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.models.xxx import XxxModel  # 実テーブル導入時に作成するモデル型
+
 
 class XxxRepository:
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
-    async def list_items(self) -> list[object]:
+    async def list_items(self) -> list[XxxModel]:
         return []
 ```

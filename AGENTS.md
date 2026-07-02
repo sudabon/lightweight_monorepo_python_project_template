@@ -23,32 +23,51 @@ Clean Architecture の厳密な4層ではなく、`api` / `services` / `reposito
 - 画面コンポーネントから直接 `fetch` を増やさない。
 - `any` は避け、`unknown` と型ガードで絞り込む。
 
+## Rule Sources
+
+- エージェント向けルールの正本は `AGENTS.md` と `.claude/rules/` に置く。
+- `.codex/rules/` と `.cursor/rules/` は各ツール向けの複製であり、更新時は正本の内容に合わせる。
+
 ## Structure
 
 ```text
 backend/
   pyproject.toml
+  uv.lock
+  .env.example
   src/
     main.py
     config.py
     db.py
     api/
+      health.py
     services/
+      health_service.py
     repositories/
+      README.md
     schemas/
+      health.py
   tests/
+    test_health_service.py
+    test_health_api.py
 frontend/
   package.json
+  pnpm-lock.yaml
   vite.config.ts
   index.html
   src/
     App.tsx
     main.tsx
+    index.css
+    vite-env.d.ts
     components/
     pages/
     hooks/
     lib/
+      api.ts
     types/
+      health.ts
+docker-compose.yml
 ```
 
 ## Commands
@@ -84,4 +103,5 @@ docker compose up -d
 
 - `.env` はコミットしない。必要なキーは `backend/.env.example` を参照し、`backend/.env` にコピーして使う。
 - `GET /health` は DB 非依存にし、DB 未起動でも起動確認できるようにする。
-- API スキーマをバックエンドとフロントエンド間の型の信頼源にする。
+- API レスポンス型は `backend/src/schemas` を正とし、`frontend/src/types/` に手動で対応する型を定義する。
+- 自動生成（openapi-typescript 等）は必要になってから導入する。
