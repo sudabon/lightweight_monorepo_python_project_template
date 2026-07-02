@@ -1,3 +1,0 @@
-interface:
-  display_name: "Opsx Codex Apply"
-  short_description: "Orchestrate OpenSpec implementation through Codex, then run checks and Claude review."
